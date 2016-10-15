@@ -115,7 +115,7 @@ class Feedback(Resource):
         data = feedback_info
         try:
             latest_news = Data.query.filter_by(id=int(feedback_id)).first()
-            if float(latest_news.relevancy) <1:
+            if float(latest_news.relevancy) <1 and feedback_info == "1":
                 latest_news.relevancy = float(latest_news.relevancy) + 0.01
                 data = latest_news.relevancy
                 db.session.commit()
