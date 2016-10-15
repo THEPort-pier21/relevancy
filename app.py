@@ -6,6 +6,7 @@ from flask_restful import Resource, Api
 
 from goose import Goose
 
+from location import get_location, generate_geojson
 g = Goose()
 
 app = Flask(__name__)
@@ -29,11 +30,20 @@ class Article(Resource):
         title = article.title
         text = article.cleaned_text
         is_relevant = False
-
-        data = {'title': title, 'text': text, 'relevancy': is_relevant}
+        location = get_location(title)
+        if location is None:
+            location = get_location(text)
+        data = {'title': title, 'text': text, 'relevancy': is_relevant, 'location': location, 'geo': generate_geojson(location, title) }
         return jsonify(data)
 
+class Feedback(Resource):
+    def post(self):
+        user_feedback = request.get_json(force=False)
+        data = user_feedback
+        return jsonify({'success': True, 'data': data})
+
 api.add_resource(Article, '/article')
+api.add_resource(Feedback, '/feedback')
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

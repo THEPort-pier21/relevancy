@@ -16,3 +16,6 @@ python-dateutil==2.5.3
 pytz==2016.7
 six==1.10.0
 Werkzeug==0.11.11
+git+https://github.com/mit-nlp/MITIE.git
+geopy==1.11.0
+goose-extractor==1.0.25
