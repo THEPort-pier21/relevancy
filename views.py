@@ -38,6 +38,7 @@ class Data(db.Model):
 
     def to_dict(self):
         data_dict = {
+        "id": self.id,
         "url" :self.url,
         "title" : self.title,
         "text": self.text,
