@@ -1,5 +1,6 @@
 import os
 import urllib2
+import json
 
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
@@ -34,6 +35,20 @@ class Data(db.Model):
         self.cluster = cluster
         self.feedback_relevancy = feedback_relevancy
         self.feedback_cluster = feedback_cluster
+
+    def to_dict(self):
+        data_dict = {
+        "url" :self.url,
+        "title" : self.title,
+        "text": self.text,
+        "relevancy": self.relevancy,
+        "cluster":self.cluster ,
+        "feedback_relevancy" :self.feedback_relevancy,
+        "feedback_cluster": self.feedback_cluster
+
+
+        }
+        return data_dict
 
 
 @app.route('/', methods=['GET'])
@@ -80,8 +95,33 @@ class Feedback(Resource):
             return jsonify({'success': False, 'data': e})
         return jsonify({'success': True, 'data': data})
 
+class DataDetails(Resource):
+    def get(self, data_id):
+        try:
+            d = Data.query.filter_by(id=int(data_id)).first()
+            data = d.to_dict()
+        except Exception, e:
+            return jsonify({'success': False})
+        return jsonify({'success': True, 'data': data})
+
+    def delete(self, data_id):
+        data = Data.query.filter_by(id=int(data_id)).first()
+        db.session.delete(data)
+        db.session.commit()
+
+class ListData(Resource):
+    def get(self):
+        data = Data.query.all()
+        all_reports = []
+        for r in data:
+            all_reports.append(r.to_dict())
+        return jsonify({'data': all_reports})
+
+
 api.add_resource(Article, '/article')
 api.add_resource(Feedback, '/feedback')
+api.add_resource(DataDetails, '/data/<data_id>')
+api.add_resource(ListData, '/list')
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
