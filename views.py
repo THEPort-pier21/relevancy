@@ -66,13 +66,15 @@ class Article(Resource):
 
 class Feedback(Resource):
 
-    def post(self):
+    def get(self):
         #pass {feedback: 1 or 0, id: id of article}
-        user_feedback = request.get_json(force=False)
-        data = user_feedback
+        #user_feedback = request.get_json(force=False)
+        feedback_id = request.args.get('id')
+        feedback_info = request.args.get('feedback')
+        data = feedback_info
         try:
-            latest_news = Data.query.filter_by(id=int(user_feedback['id'])).first()
-            latest_news.feedback_relevancy = user_feedback['feedback']
+            latest_news = Data.query.filter_by(id=int(feedback_id)).first()
+            latest_news.feedback_relevancy = feedback_info
             db.session.commit()
         except Exception, e:
             return jsonify({'success': False, 'data': e})
