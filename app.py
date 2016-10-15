@@ -3,13 +3,18 @@ import urllib2
 
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
-
+from flask.ext.sqlalchemy import SQLAlchemy
 from goose import Goose
+
+from models import Data
 
 g = Goose()
 
-app = Flask(__name__)
-api = Api(app)
+my_app = Flask(__name__)
+api = Api(my_app)
+db = SQLAlchemy(my_app)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 @app.route('/', methods=['GET'])
 def index():
