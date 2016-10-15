@@ -56,6 +56,24 @@ class Data(db.Model):
 def index():
     return "Hello, World!"
 
+class HTMLArticle(Resource):
+    def post(self):
+        new_article = request.get_json(force=True)
+        article = g.extract(raw_html=new_article['html'])
+        disable_text = new_article.get('disable_text')
+        title = article.title
+        text = article.cleaned_text
+        is_relevant = False
+
+        input_data = Data(url=None, text=text, title=title, relevancy = is_relevant)
+        db.session.add(input_data)
+        db.session.commit()
+        if disable_text == '1':
+            text = None
+        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': is_relevant}
+        return jsonify(data)
+
+
 class Article(Resource):
     def post(self):
         new_article = request.get_json(force=False)
@@ -127,6 +145,7 @@ api.add_resource(Article, '/article')
 api.add_resource(Feedback, '/feedback')
 api.add_resource(DataDetails, '/data/<data_id>')
 api.add_resource(ListData, '/list')
+api.add_resource(HTMLArticle, '/html_article')
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
