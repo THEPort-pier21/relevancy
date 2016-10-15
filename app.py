@@ -19,4 +19,4 @@ api.add_resource(Article, '/article')
 
 if __name__ == "__main__":
     port = int(os.eniron.get("PORT", 5000))
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True)
