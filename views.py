@@ -59,9 +59,13 @@ def index():
 class Article(Resource):
     def post(self):
         new_article = request.get_json(force=False)
-        is_relevant = False
-        data= {'relevancy': is_relevant, 'article': new_article}
-        return jsonify(data)
+        try:
+            new_entry = Data(**new_article)
+            db.session.add(new_entry)
+            db.session.commit()
+        except Exception, e:
+            return(jsonify({"success": False}))
+        return jsonify({"success":True, "data":new_entry.to_dict()})
 
     def get(self):
         url = request.args.get('url')
