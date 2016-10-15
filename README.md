@@ -21,3 +21,9 @@ expected response:
 }
 
 ```
+
+on heroku
+
+call:
+
+`curl -H "Content-Type: application/json" -X POST -d '{"something":"asfd"}' http://pier21.herokuapp.com/article`
