@@ -22,7 +22,7 @@ class Data(db.Model):
     url = db.Column(db.String)
     title = db.Column(db.String)
     text = db.Column(db.String)
-    relevancy = db.Column(db.String)
+    relevancy = db.Column(db.String, default="0")
     cluster = db.Column(db.String)
     feedback_relevancy = db.Column(db.String)
     feedback_cluster = db.Column(db.String)
@@ -31,7 +31,7 @@ class Data(db.Model):
         self.url = url
         self.title = title
         self.text = text
-        self.relevancy = relevancy
+        self.relevancy = float(relevancy)
         self.cluster = cluster
         self.feedback_relevancy = feedback_relevancy
         self.feedback_cluster = feedback_cluster
@@ -93,13 +93,16 @@ class Article(Resource):
         title = article.title
         text = article.cleaned_text
         is_relevant = 0
-
-        input_data = Data(url=url, text=text, title=title, relevancy = is_relevant)
-        db.session.add(input_data)
-        db.session.commit()
+        try:
+            input_data = Data.query.filter_by(url=url).first()
+            is_relevant = input_data.relevancy
+        except:
+            input_data = Data(url=url, text=text, title=title, relevancy = is_relevant)
+            db.session.add(input_data)
+            db.session.commit()
         if disable_text == '1':
             text = None
-        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': is_relevant}
+        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': float(is_relevant)}
         return jsonify(data)
 
 class Feedback(Resource):
@@ -112,6 +115,10 @@ class Feedback(Resource):
         data = feedback_info
         try:
             latest_news = Data.query.filter_by(id=int(feedback_id)).first()
+            if float(latest_news.relevancy) <1:
+                latest_news.relevancy = float(latest_news.relevancy) + 0.01
+                data = latest_news.relevancy
+                db.session.commit()
             latest_news.feedback_relevancy = feedback_info
             db.session.commit()
         except Exception, e:
