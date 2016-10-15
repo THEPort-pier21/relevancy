@@ -29,16 +29,27 @@ class Article(Resource):
 
     def get(self):
         url = request.args.get('url')
+        disable_text = request.args.get('disable_text')
         print(url)
         article = g.extract(url=url)
         title = article.title
         text = article.cleaned_text
         is_relevant = False
-
+        if disable_text == '1':
+            text = None
         data = {'title': title, 'text': text, 'relevancy': is_relevant}
         return jsonify(data)
 
+class Feedback(Resource):
+
+    def post(self):
+        #pass {feedback: 1 or 0, id: id of article}
+        user_feedback = request.get_json(force=False)
+        data = user_feedback
+        return jsonify({'success': True, 'data': data})
+
 api.add_resource(Article, '/article')
+api.add_resource(Feedback, '/feedback')
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
