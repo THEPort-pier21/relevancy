@@ -5,7 +5,7 @@ from flask_restful import Resource, Api
 app = Flask(__name__)
 api = Api(app)
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     return "Hello, World!"
 
