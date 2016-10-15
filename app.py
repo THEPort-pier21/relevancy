@@ -24,12 +24,14 @@ class Article(Resource):
 
     def get(self):
         url = request.args.get('url')
+        disable_text = request.args.get('disable_text')
         print(url)
         article = g.extract(url=url)
         title = article.title
         text = article.cleaned_text
         is_relevant = False
-
+        if disable_text == '1':
+            text = None
         data = {'title': title, 'text': text, 'relevancy': is_relevant}
         return jsonify(data)
 
