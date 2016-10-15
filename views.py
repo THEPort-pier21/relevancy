@@ -63,7 +63,7 @@ class HTMLArticle(Resource):
         disable_text = new_article.get('disable_text')
         title = article.title
         text = article.cleaned_text
-        is_relevant = False
+        is_relevant = 0
 
         input_data = Data(url=None, text=text, title=title, relevancy = is_relevant)
         db.session.add(input_data)
@@ -92,7 +92,7 @@ class Article(Resource):
         article = g.extract(url=url)
         title = article.title
         text = article.cleaned_text
-        is_relevant = False
+        is_relevant = 0
 
         input_data = Data(url=url, text=text, title=title, relevancy = is_relevant)
         db.session.add(input_data)
