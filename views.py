@@ -3,6 +3,7 @@ import urllib2
 import json
 import numpy
 import math
+import random
 
 from flask import Flask, jsonify, request, render_template, send_from_directory
 from flask_restful import Resource, Api
@@ -176,19 +177,33 @@ class Feedback(Resource):
         try:
             print('user providing feeback ...')
             latest_news = Data.query.filter_by(id=int(feedback_id)).first()
-            if float(latest_news.relevancy) <1 and feedback_info == "1":
+            if feedback_info == "1":
                 print('feedback is 1')
-                latest_news.relevancy = float(latest_news.relevancy) + 0.1
+                new_relevancy = float(latest_news.relevancy) + random.uniform(0.1, 0.2)
                 data = latest_news.relevancy
-                db.session.commit()
-            if float(latest_news.relevancy) >0 and feedback_info == '0':
+                if float(new_relevancy) <1:
+                    latest_news.relevancy = new_relevancy
+                    data = new_relevancy
+                    db.session.commit()
+                else:
+                    latest_news.relevancy = 1
+                    data = 1
+                    db.session.commit()
+            if feedback_info == '0':
                 print('feedback is 0')
-                latest_news.relevancy = float(latest_news.relevancy) - 0.1
+                new_relevancy = float(latest_news.relevancy) - random.uniform(0.1, 0.2)
                 data = latest_news.relevancy
-                db.session.commit()
+                if float(new_relevancy) > 0:
+                    latest_news.relevancy = new_relevancy
+                    data = new_relevancy
+                    db.session.commit()
+                else:
+                    latest_news.relevancy = 0
+                    data = 0
+                    db.session.commit()
             latest_news.feedback_relevancy = feedback_info
             db.session.commit()
-            return jsonify({'success': True, 'relevancy': "{0:.2f}".format(float(latest_news.relevancy))})
+            return jsonify({'success': True, 'relevancy': "{0:.2f}".format(float(data))})
         except Exception, e:
             return jsonify({'success': False, 'data': e})
         return jsonify({'success': True, 'relevancy': data})
