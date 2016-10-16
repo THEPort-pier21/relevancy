@@ -112,7 +112,7 @@ class Article(Resource):
             print('in get')
             for k in keyword_dictionary:
                 if k in text:
-                    if k in keywords.keys():
+                    if k in keywords:
                         keywords[k]+=1
                     else:
                         keywords[k]=1
@@ -121,7 +121,7 @@ class Article(Resource):
             db.session.commit()
         if disable_text == '1':
             text = None
-        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': float(is_relevant), 'keywords': keywords}
+        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': "{0:.2f}".format(float(is_relevant)), 'keywords': keywords}
         return jsonify(data)
 
 class Feedback(Resource):
@@ -135,18 +135,19 @@ class Feedback(Resource):
         try:
             latest_news = Data.query.filter_by(id=int(feedback_id)).first()
             if float(latest_news.relevancy) <1 and feedback_info == "1":
-                latest_news.relevancy = float(latest_news.relevancy) + 0.125
+                latest_news.relevancy = float(latest_news.relevancy) + 0.1
                 data = latest_news.relevancy
                 db.session.commit()
             if float(latest_news.relevancy) >0 and feedback_info == '0':
-                latest_news.relevancy = float(latest_news.relevancy) - 0.125
+                latest_news.relevancy = float(latest_news.relevancy) - 0.1
                 data = latest_news.relevancy
                 db.session.commit()
             latest_news.feedback_relevancy = feedback_info
             db.session.commit()
+            return jsonify({'success': True, 'relevancy': "{0:.2f}".format(float(latest_news.relevancy))})
         except Exception, e:
             return jsonify({'success': False, 'data': e})
-        return jsonify({'success': True, 'data': data})
+        return jsonify({'success': True, 'relevancy': data})
 
 class DataDetails(Resource):
     def get(self, data_id):
