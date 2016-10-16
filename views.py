@@ -14,6 +14,12 @@ api = Api(app)
 db = SQLAlchemy(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
+keyword_dictionary = []
+
+with open('keywords.txt', 'r') as data_file:
+    for line in data_file:
+        keyword_dictionary.append(line.rstrip())
+print keyword_dictionary
 
 class Data(db.Model):
     __tablename__ = 'news_articles'
@@ -103,9 +109,14 @@ class Article(Resource):
             is_relevant = input_data.relevancy
             keywords = input_data.keywords
         except:
-            keywords = ["MSF", "Doctors Without Borders", "abduct", "kidnap", "kill"]
-
-            input_data = Data(url=url, text=text, title=title, relevancy = is_relevant, keywords=keywords)
+            print('in get')
+            for k in keyword_dictionary:
+                if k in text:
+                    if k in keywords.keys():
+                        keywords[k]+=1
+                    else:
+                        keywords[k]=1
+            input_data = Data(url=url, text=text, title=title, relevancy = is_relevant, keywords=str(keywords))
             db.session.add(input_data)
             db.session.commit()
         if disable_text == '1':
