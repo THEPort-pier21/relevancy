@@ -7,7 +7,6 @@ from flask_restful import Resource, Api
 from flask.ext.sqlalchemy import SQLAlchemy
 from goose import Goose
 
-
 g = Goose()
 app = Flask(__name__)
 api = Api(app)
@@ -16,7 +15,20 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 keyword_dictionary = []
 
+def read_auto_keywords():
+    print('reading in auto generated keywords ...')
+    with open('auto_keywords.txt', 'r') as data_file:
+        for line in data_file:
+            keyword_dictionary.append(line.rstrip())
+
+import os.path
+if not os.path.isfile('auto_keywords.txt'):
+    print('generating auto keywords ...')
+    from extract_keywords import create_keyword_file
+    create_keyword_file()
+read_auto_keywords()
 with open('keywords.txt', 'r') as data_file:
+    print('reading hardcoded keywords ....')
     for line in data_file:
         keyword_dictionary.append(line.rstrip())
 print keyword_dictionary
