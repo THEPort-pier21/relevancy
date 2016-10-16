@@ -2,7 +2,7 @@ import os
 import urllib2
 import json
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template, send_from_directory
 from flask_restful import Resource, Api
 from flask.ext.sqlalchemy import SQLAlchemy
 from goose import Goose
@@ -65,10 +65,14 @@ class KeywordList(db.Model):
         }
         return data_dict
 
+@app.route('/jumbotron_files/<path:path>')
+def send_js(path):
+    return send_from_directory('jumbotron_files', path)
 
 @app.route('/', methods=['GET'])
 def index():
-    return "Hello, World!"
+    return render_template('jumbotron.html')
+    #return "Hello, World!"
 
 class HTMLArticle(Resource):
     def post(self):
