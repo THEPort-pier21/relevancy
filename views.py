@@ -20,7 +20,8 @@ def relevance_score(x):
     def get_probability(x, m, v):
         return ((1 / math.sqrt(2 * v * 3.14)) * math.exp(-1 * (x - m) * (x - m) / (2 * v)))
     print get_probability(4, mean, variance)
-    return get_probability(4, mean, variance)
+    y = get_probability(4, mean, variance)
+    return ((1-y)*0.5)+y
 
 g = Goose()
 app = Flask(__name__)
@@ -173,12 +174,15 @@ class Feedback(Resource):
         feedback_info = request.args.get('feedback')
         data = feedback_info
         try:
+            print('user providing feeback ...')
             latest_news = Data.query.filter_by(id=int(feedback_id)).first()
             if float(latest_news.relevancy) <1 and feedback_info == "1":
+                print('feedback is 1')
                 latest_news.relevancy = float(latest_news.relevancy) + 0.1
                 data = latest_news.relevancy
                 db.session.commit()
             if float(latest_news.relevancy) >0 and feedback_info == '0':
+                print('feedback is 0')
                 latest_news.relevancy = float(latest_news.relevancy) - 0.1
                 data = latest_news.relevancy
                 db.session.commit()
