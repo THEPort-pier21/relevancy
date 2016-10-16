@@ -34,6 +34,11 @@ class Data(db.Model):
     feedback_cluster = db.Column(db.String)
     keywords = db.Column(db.String)
 
+class KeywordList(db.Model):
+    __tablename__ = 'keywords'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    keyword = db.Column(db.String)
+
     def __init__(self, url=None, text=None, title = None, relevancy=None, cluster=None, feedback_relevancy=None, feedback_cluster=None, keywords=None):
         self.url = url
         self.title = title
@@ -121,7 +126,7 @@ class Article(Resource):
             db.session.commit()
         if disable_text == '1':
             text = None
-        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': "{0:.2f}".format(float(is_relevant)), 'keywords': keywords}
+        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': "{0:.2f}".format(float(is_relevant)), 'keywords': keywords, 'feedback': input_data.feedback_relevancy}
         return jsonify(data)
 
 class Feedback(Resource):
