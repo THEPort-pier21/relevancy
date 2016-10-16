@@ -26,8 +26,9 @@ class Data(db.Model):
     cluster = db.Column(db.String)
     feedback_relevancy = db.Column(db.String)
     feedback_cluster = db.Column(db.String)
+    keywords = db.Column(db.String)
 
-    def __init__(self, url=None, text=None, title = None, relevancy=None, cluster=None, feedback_relevancy=None, feedback_cluster=None):
+    def __init__(self, url=None, text=None, title = None, relevancy=None, cluster=None, feedback_relevancy=None, feedback_cluster=None, keywords=None):
         self.url = url
         self.title = title
         self.text = text
@@ -35,6 +36,7 @@ class Data(db.Model):
         self.cluster = cluster
         self.feedback_relevancy = feedback_relevancy
         self.feedback_cluster = feedback_cluster
+        self.keywords = keywords
 
     def to_dict(self):
         data_dict = {
@@ -45,7 +47,8 @@ class Data(db.Model):
         "relevancy": self.relevancy,
         "cluster":self.cluster ,
         "feedback_relevancy" :self.feedback_relevancy,
-        "feedback_cluster": self.feedback_cluster
+        "feedback_cluster": self.feedback_cluster,
+        "keywords": self.keywords
 
 
         }
@@ -64,13 +67,14 @@ class HTMLArticle(Resource):
         title = article.title
         text = article.cleaned_text
         is_relevant = 0
+        keywords = ["MSF", "Doctors Without Borders", "abduct", "kidnap", "kill"]
 
-        input_data = Data(url=None, text=text, title=title, relevancy = is_relevant)
+        input_data = Data(url=None, text=text, title=title, relevancy = is_relevant, keywords=keywords)
         db.session.add(input_data)
         db.session.commit()
         if disable_text == '1':
             text = None
-        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': is_relevant}
+        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': is_relevant, 'keywords': keywords}
         return jsonify(data)
 
 
@@ -93,16 +97,20 @@ class Article(Resource):
         title = article.title
         text = article.cleaned_text
         is_relevant = 0
+        keywords = {}
         try:
             input_data = Data.query.filter_by(url=url).first()
             is_relevant = input_data.relevancy
+            keywords = input_data.keywords
         except:
-            input_data = Data(url=url, text=text, title=title, relevancy = is_relevant)
+            keywords = ["MSF", "Doctors Without Borders", "abduct", "kidnap", "kill"]
+
+            input_data = Data(url=url, text=text, title=title, relevancy = is_relevant, keywords=keywords)
             db.session.add(input_data)
             db.session.commit()
         if disable_text == '1':
             text = None
-        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': float(is_relevant)}
+        data = {'id': input_data.id, 'title': title, 'text': text, 'relevancy': float(is_relevant), 'keywords': keywords}
         return jsonify(data)
 
 class Feedback(Resource):
@@ -116,7 +124,11 @@ class Feedback(Resource):
         try:
             latest_news = Data.query.filter_by(id=int(feedback_id)).first()
             if float(latest_news.relevancy) <1 and feedback_info == "1":
-                latest_news.relevancy = float(latest_news.relevancy) + 0.01
+                latest_news.relevancy = float(latest_news.relevancy) + 0.125
+                data = latest_news.relevancy
+                db.session.commit()
+            if float(latest_news.relevancy) >0 and feedback_info == '0':
+                latest_news.relevancy = float(latest_news.relevancy) - 0.125
                 data = latest_news.relevancy
                 db.session.commit()
             latest_news.feedback_relevancy = feedback_info
