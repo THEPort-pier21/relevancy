@@ -3,7 +3,12 @@ relevancy api
 
 To Run:
 
+
 `pip install -r requirements.txt`
+
+`export DATABASE_URL= {url to psql db}`
+
+`python views.py`
 
 call:
 

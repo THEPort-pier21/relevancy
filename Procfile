@@ -1,1 +1,2 @@
-web: python app.py
+web: python views.py
+init: python db_create.py
