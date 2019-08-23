@@ -10,7 +10,7 @@ jieba==0.38
 Jinja2
 lxml==3.6.4
 MarkupSafe==0.23
-nltk==3.2.1
+nltk
 Pillow==3.4.1
 python-dateutil==2.5.3
 pytz==2016.7
